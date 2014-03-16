@@ -34,6 +34,13 @@ import org.eigenbase.rel.*;
 import org.eigenbase.rel.convert.ConverterRule;
 import org.eigenbase.rel.rules.MergeFilterRule;
 import org.eigenbase.relopt.*;
+import org.eigenbase.rel.RelCollationTraitDef;
+import org.eigenbase.rel.RelNode;
+import org.eigenbase.rel.rules.MergeFilterRule;
+import org.eigenbase.relopt.ConventionTraitDef;
+import org.eigenbase.relopt.RelOptUtil;
+import org.eigenbase.relopt.RelTraitDef;
+import org.eigenbase.relopt.RelTraitSet;
 import org.eigenbase.sql.*;
 import org.eigenbase.sql.fun.SqlStdOperatorTable;
 import org.eigenbase.sql.parser.SqlParseException;
@@ -41,7 +48,7 @@ import org.eigenbase.util.Util;
 
 import org.junit.Test;
 
-
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.*;
@@ -117,6 +124,18 @@ public class PlannerTest {
         }, SqlStdOperatorTable.instance(), ruleSets);
   }
 
+  private Planner getPlanner(List<RelTraitDef> traitDefs,
+                             RuleSet... ruleSets) {
+    return Frameworks.getPlanner(
+        Lex.ORACLE,
+        new Function1<SchemaPlus, Schema>() {
+          public Schema apply(SchemaPlus parentSchema) {
+            return new ReflectiveSchema(parentSchema, "hr",
+                new JdbcTest.HrSchema());
+          }
+        }, SqlStdOperatorTable.instance(), traitDefs, ruleSets);
+  }
+
   /** Tests that planner throws an error if you pass to
    * {@link Planner#convert(org.eigenbase.sql.SqlNode)}
    * a {@link org.eigenbase.sql.SqlNode} that has been parsed but not
@@ -150,6 +169,31 @@ public class PlannerTest {
     assertThat(toString(transform), equalTo(
         "EnumerableProjectRel(empid=[$0], deptno=[$1], name=[$2], salary=[$3], commission=[$4])\n"
         + "  EnumerableTableAccessRel(table=[[hr, emps]])\n"));
+  }
+
+  /** Unit test that parses, validates, converts and plans. Planner is
+   * provided with a list of RelTraitDefs to register. */
+  @Test public void testPlanWithExplicitTraitDefs() throws Exception {
+    RuleSet ruleSet =
+        RuleSets.ofList(
+            MergeFilterRule.INSTANCE,
+            JavaRules.ENUMERABLE_FILTER_RULE,
+            JavaRules.ENUMERABLE_PROJECT_RULE);
+    final List<RelTraitDef> traitDefs = new ArrayList<RelTraitDef>();
+    traitDefs.add(ConventionTraitDef.INSTANCE);
+    traitDefs.add(RelCollationTraitDef.INSTANCE);
+
+    Planner planner = getPlanner(traitDefs, ruleSet);
+
+    SqlNode parse = planner.parse("select * from \"emps\"");
+    SqlNode validate = planner.validate(parse);
+    RelNode convert = planner.convert(validate);
+    RelTraitSet traitSet = planner.getEmptyTraitSet()
+        .replace(EnumerableConvention.INSTANCE);
+    RelNode transform = planner.transform(0, traitSet, convert);
+    assertThat(toString(transform), equalTo(
+        "EnumerableProjectRel(empid=[$0], deptno=[$1], name=[$2], salary=[$3], commission=[$4])\n"
+            + "  EnumerableTableAccessRel(table=[[hr, emps]])\n"));
   }
 
   /** Unit test that calls {@link Planner#transform} twice. */
