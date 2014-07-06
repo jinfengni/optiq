@@ -274,7 +274,7 @@ public final class Schemas {
         return typeFactory;
       }
 
-      public OptiqRootSchema getRootSchema() {
+      public OptiqSchema getRootSchema() {
         return schema.root();
       }
 
