@@ -4120,7 +4120,7 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
             selectNs.getRowTypeSansSystemColumns();
         RelDataTypeField field =
             catalogReader.field(rowType, alias);
-        if (field != null) {
+        if (field != null && field.getIndex() >= 0) {
           return nthSelectItem(
               field.getIndex(),
               id.getParserPosition());

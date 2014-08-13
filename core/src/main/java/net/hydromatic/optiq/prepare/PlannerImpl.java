@@ -167,7 +167,7 @@ public class PlannerImpl implements Planner {
   }
 
   public SqlNode validate(SqlNode sqlNode) throws ValidationException {
-    ensure(State.STATE_3_PARSED);
+//    ensure(State.STATE_3_PARSED);
     this.validator = createSqlValidator(createCatalogReader());
     try {
       validatedSqlNode = validator.validate(sqlNode);
@@ -176,6 +176,10 @@ public class PlannerImpl implements Planner {
     }
     state = State.STATE_4_VALIDATED;
     return validatedSqlNode;
+  }
+
+  public OptiqSqlValidator getValidator() {
+    return this.validator;
   }
 
   public RelNode convert(SqlNode sql) throws RelConversionException {

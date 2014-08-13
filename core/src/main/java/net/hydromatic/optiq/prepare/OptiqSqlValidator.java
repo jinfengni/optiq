@@ -26,7 +26,7 @@ import org.eigenbase.sql.validate.SqlConformance;
 import org.eigenbase.sql.validate.SqlValidatorImpl;
 
 /** Validator. */
-class OptiqSqlValidator extends SqlValidatorImpl {
+public class OptiqSqlValidator extends SqlValidatorImpl {
   public OptiqSqlValidator(
       SqlOperatorTable opTab,
       OptiqCatalogReader catalogReader,

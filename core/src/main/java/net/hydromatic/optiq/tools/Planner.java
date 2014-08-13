@@ -17,6 +17,8 @@
 */
 package net.hydromatic.optiq.tools;
 
+import net.hydromatic.optiq.prepare.OptiqSqlValidator;
+
 import org.eigenbase.rel.RelNode;
 import org.eigenbase.relopt.RelTraitSet;
 import org.eigenbase.reltype.RelDataTypeFactory;
@@ -99,6 +101,8 @@ public interface Planner {
   void close();
 
   RelTraitSet getEmptyTraitSet();
+
+  OptiqSqlValidator getValidator();
 }
 
 // End Planner.java

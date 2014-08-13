@@ -2706,7 +2706,7 @@ public abstract class RelOptUtil {
     private final Set<RelDataTypeField> extraFields;
 
     public InputFinder(BitSet rexRefSet) {
-      this(rexRefSet, null);
+      this(rexRefSet, new HashSet<RelDataTypeField>());
     }
 
     public InputFinder(
@@ -2714,6 +2714,7 @@ public abstract class RelOptUtil {
         Set<RelDataTypeField> extraFields) {
       super(true);
       this.rexRefSet = rexRefSet;
+
       this.extraFields = extraFields;
     }
 
