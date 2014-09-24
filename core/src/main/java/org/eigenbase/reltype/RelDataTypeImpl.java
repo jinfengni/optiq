@@ -92,8 +92,6 @@ public abstract class RelDataTypeImpl
     for (RelDataTypeField field : fieldList) {
       if (field.getName().startsWith("*")) {
         return field;
-//        return new RelDataTypeFieldImpl(
-//            fieldName, -1, field.getType());
       }
     }
 
