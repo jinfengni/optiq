@@ -117,6 +117,7 @@ class OptiqMaterializer extends OptiqPrepareImpl.OptiqPreparingStmt {
         list.add(new Callback(rel3, starTable, starRelOptTable));
       }
     }
+    return list;
   }
 
   /** Returns the star tables defined in a schema.

@@ -16,6 +16,9 @@
  */
 package net.hydromatic.optiq.jdbc;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import net.hydromatic.linq4j.Linq4j;
 import net.hydromatic.linq4j.expressions.Expression;
 
@@ -44,6 +47,8 @@ public abstract class OptiqSchema {
   public final String name;
   protected final OptiqSchema parent;
   private ImmutableList<ImmutableList<String>> path;
+
+
 
   public OptiqSchema(OptiqSchema parent, final Schema schema, String name) {
     this.parent = parent;
@@ -90,7 +95,10 @@ public abstract class OptiqSchema {
       String tableName,
       boolean caseSensitive);
 
+  public abstract LatticeEntry add(String name, Lattice lattice);
+
   protected abstract FunctionEntry add(String name, Function function);
+
 
   public String getName() {
     return name;
@@ -398,58 +406,58 @@ public abstract class OptiqSchema {
     void enable(long now, boolean enabled);
   }
 
-  /** Implementation of {@link net.hydromatic.optiq.jdbc.OptiqSchema.Cached}
-   * that drives from {@link net.hydromatic.optiq.jdbc.OptiqSchema#cache}. */
-  private abstract class AbstractCached<T> implements Cached<T> {
-    T t;
-    long checked = Long.MIN_VALUE;
+//  /** Implementation of {@link net.hydromatic.optiq.jdbc.OptiqSchema.Cached}
+//   * that drives from {@link net.hydromatic.optiq.jdbc.OptiqSchema#cache}. */
+//  private abstract class AbstractCached<T> implements Cached<T> {
+//    T t;
+//    long checked = Long.MIN_VALUE;
+//
+//    public T get(long now) {
+//      if (!OptiqSchema.this.cache) {
+//        return build();
+//      }
+//      if (checked == Long.MIN_VALUE
+//          || schema.contentsHaveChangedSince(checked, now)) {
+//        t = build();
+//      }
+//      checked = now;
+//      return t;
+//    }
+//
+//    public void enable(long now, boolean enabled) {
+//      if (!enabled) {
+//        t = null;
+//      }
+//      checked = Long.MIN_VALUE;
+//    }
+//  }
 
-    public T get(long now) {
-      if (!OptiqSchema.this.cache) {
-        return build();
-      }
-      if (checked == Long.MIN_VALUE
-          || schema.contentsHaveChangedSince(checked, now)) {
-        t = build();
-      }
-      checked = now;
-      return t;
-    }
-
-    public void enable(long now, boolean enabled) {
-      if (!enabled) {
-        t = null;
-      }
-      checked = Long.MIN_VALUE;
-    }
-  }
-
-  /** Information about the implicit sub-schemas of an {@link OptiqSchema}. */
-  private static class SubSchemaCache {
-    /** The names of sub-schemas returned from the {@link Schema} SPI. */
-    final NavigableSet<String> names;
-    /** Cached {@link net.hydromatic.optiq.jdbc.OptiqSchema} wrappers. It is
-     * worth caching them because they contain maps of their own sub-objects. */
-    final LoadingCache<String, OptiqSchema> cache;
-
-    private SubSchemaCache(final OptiqSchema optiqSchema,
-        NavigableSet<String> names) {
-      this.names = names;
-      this.cache = CacheBuilder.newBuilder().build(
-          new CacheLoader<String, OptiqSchema>() {
-            @SuppressWarnings("NullableProblems")
-            @Override public OptiqSchema load(String schemaName) {
-              final Schema subSchema =
-                  optiqSchema.schema.getSubSchema(schemaName);
-              if (subSchema == null) {
-                throw new RuntimeException("sub-schema " + schemaName
-                    + " not found");
-              }
-              return new OptiqSchema(optiqSchema, subSchema, schemaName);
-            }
-          });
-    }
-  }
+//  /** Information about the implicit sub-schemas of an {@link OptiqSchema}. */
+//  private static class SubSchemaCache {
+//    /** The names of sub-schemas returned from the {@link Schema} SPI. */
+//    final NavigableSet<String> names;
+//    /** Cached {@link net.hydromatic.optiq.jdbc.OptiqSchema} wrappers. It is
+//     * worth caching them because they contain maps of their own sub-objects. */
+//    final LoadingCache<String, OptiqSchema> cache;
+//
+//    private SubSchemaCache(final OptiqSchema optiqSchema,
+//        NavigableSet<String> names) {
+//      this.names = names;
+//      this.cache = CacheBuilder.newBuilder().build(
+//          new CacheLoader<String, OptiqSchema>() {
+//            @SuppressWarnings("NullableProblems")
+//            @Override public OptiqSchema load(String schemaName) {
+//              final Schema subSchema =
+//                  optiqSchema.schema.getSubSchema(schemaName);
+//              if (subSchema == null) {
+//                throw new RuntimeException("sub-schema " + schemaName
+//                    + " not found");
+//              }
+//              return new OptiqSchema(optiqSchema, subSchema, schemaName);
+//            }
+//          });
+//    }
+//  }
 }
 
 // End OptiqSchema.java

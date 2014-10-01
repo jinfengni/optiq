@@ -22,6 +22,7 @@ import net.hydromatic.optiq.Schema;
 import net.hydromatic.optiq.SchemaPlus;
 import net.hydromatic.optiq.Table;
 
+import net.hydromatic.optiq.materialize.Lattice;
 import org.eigenbase.util.Pair;
 
 import com.google.common.collect.Lists;
@@ -139,6 +140,11 @@ public class SimpleOptiqSchema extends OptiqSchema {
   @Override
   protected FunctionEntry add(String name, Function function) {
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public LatticeEntry add(String name, Lattice lattice) {
+    throw new UnsupportedOperationException("Not supported!");
   }
 
   public static SchemaPlus createRootSchema(boolean addMetadataSchema) {

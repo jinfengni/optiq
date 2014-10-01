@@ -27,6 +27,7 @@ import net.hydromatic.optiq.TableMacro;
 
 import net.hydromatic.linq4j.Linq4j;
 
+import net.hydromatic.optiq.materialize.Lattice;
 import org.eigenbase.util.Pair;
 
 import com.google.common.cache.CacheBuilder;
@@ -80,6 +81,10 @@ public class CachingOptiqSchema extends OptiqSchema {
       new TreeMap<String, FunctionEntry>(COMPARATOR);
   private final NavigableMap<String, OptiqSchema> subSchemaMap =
       new TreeMap<String, OptiqSchema>(COMPARATOR);
+
+  private final NavigableMap<String, LatticeEntry> latticeMap =
+      new TreeMap<String, LatticeEntry>(COMPARATOR);
+
 
   private boolean cache = true;
   private final Cached<SubSchemaCache> implicitSubSchemaCache;
@@ -420,6 +425,17 @@ public class CachingOptiqSchema extends OptiqSchema {
     }
     return null;
   }
+
+  @Override
+  public LatticeEntry add(String name, Lattice lattice) {
+    if (latticeMap.containsKey(name)) {
+      throw new RuntimeException("Duplicate lattice '" + name + "'");
+    }
+    final LatticeEntryImpl entry = new LatticeEntryImpl(this, name, lattice);
+    latticeMap.put(name, entry);
+    return entry;
+  }
+
 
   /** Returns a subset of a map whose keys match the given string
    * case-insensitively. */
