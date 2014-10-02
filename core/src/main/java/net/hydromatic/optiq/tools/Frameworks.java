@@ -18,6 +18,7 @@ package net.hydromatic.optiq.tools;
 
 import net.hydromatic.optiq.SchemaPlus;
 import net.hydromatic.optiq.config.Lex;
+import net.hydromatic.optiq.config.OptiqConnectionProperty;
 import net.hydromatic.optiq.jdbc.CachingOptiqSchema;
 import net.hydromatic.optiq.jdbc.OptiqConnection;
 import net.hydromatic.optiq.jdbc.OptiqSchema;
