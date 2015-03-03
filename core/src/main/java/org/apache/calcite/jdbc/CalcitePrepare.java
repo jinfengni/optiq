@@ -99,7 +99,7 @@ public interface CalcitePrepare {
   interface Context {
     JavaTypeFactory getTypeFactory();
 
-    CalciteRootSchema getRootSchema();
+    CalciteSchema getRootSchema();
 
     List<String> getDefaultSchemaPath();
 
